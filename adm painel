@@ -1,0 +1,39 @@
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
+
+const adminSchema = new mongoose.Schema({
+  username: String,
+  password: String
+});
+
+adminSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  this.password = await bcrypt.hash(this.password, 12);
+  next();
+});
+
+adminSchema.methods.comparePassword = function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+module.exports = mongoose.model('Admin', adminSchema);
+const mongoose = require('mongoose');
+
+const settingsSchema = new mongoose.Schema({
+  siteName: { type: String, default: "Cassino JJ" },
+  primaryColor: { type: String, default: "#0066ff" },
+  theme: { type: String, default: "dark" },
+  welcomeBonus: { type: Number, default: 0 },
+  defaultBetAmount: { type: Number, default: 10 },
+  allowRegister: { type: Boolean, default: true },
+  promoMessage: { type: String, default: "" },
+  gamesEnabled: {
+    dice: { type: Boolean, default: true },
+    coin: { type: Boolean, default: true },
+    roulette: { type: Boolean, default: true },
+    blackjack: { type: Boolean, default: true },
+    slot: { type: Boolean, default: true }
+  }
+});
+
+module.exports = mongoose.model("Settings", settingsSchema);
